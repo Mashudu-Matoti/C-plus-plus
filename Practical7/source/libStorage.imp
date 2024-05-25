@@ -1,0 +1,197 @@
+
+#include <sstream>
+
+using namespace std;
+
+template <typename T>
+GenericStorage2D<T>::GenericStorage2D() : GenericStorage2D(DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_TYPE)
+{
+    AllocMem(DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_TYPE);
+}
+
+template <typename T>
+GenericStorage2D<T>::GenericStorage2D(int intRows, int intCols, T tDefault)
+{
+    AllocMem(intRows, intCols, tDefault);
+}
+
+template <typename T>
+GenericStorage2D<T>::GenericStorage2D(const GenericStorage2D<T>& objOriginal)
+{
+    AllocMem(objOriginal._rows, objOriginal._cols, objOriginal.DEFAULT_TYPE);
+    Copy(objOriginal);
+}
+
+//Assignment operator
+template <typename T>
+const GenericStorage2D<T>& GenericStorage2D<T>:: operator = (const GenericStorage2D<T>& objRHS)
+{
+    if(this != &objRHS)
+    {
+        Copy(objRHS);
+    }
+    return *this;
+}
+template <typename T>
+const bool GenericStorage2D<T>:: operator == (const GenericStorage2D<T>& objRHS)
+{
+    bool blnIndicator;
+    for(int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c< objRHS._cols; r++)
+        {
+            if(this->_type[r][c] == objRHS._type[r][c])
+            {
+                blnIndicator = true;
+            }
+            blnIndicator = false;
+        }
+    }
+    return blnIndicator;
+}
+
+template <typename T>
+const bool GenericStorage2D<T>:: operator != (const GenericStorage2D<T>& objRHS)
+{
+    bool blnIndicator;
+    for(int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c< objRHS._cols; r++)
+        {
+            if(this->_type[r][c] != objRHS[r][c])
+            {
+                blnIndicator = true;
+            }
+            blnIndicator = false;
+        }
+    }
+    return blnIndicator;
+}
+
+//Output stream
+template <typename T1>
+ostream& operator << (ostream& osLHS, const GenericStorage2D<T1>& objRHS)
+{
+    for(int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c < objRHS._cols; c++)
+        {
+            osLHS << objRHS._type[r][c] << ' ';
+        }
+        osLHS << endl;
+    }
+    return osLHS;
+}
+
+//Input stream
+template <typename T1>
+istream& operator >> (istream& isLHS, GenericStorage2D<T1>& objRHS)
+{
+    for(int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c < objRHS._cols; c++)
+        {
+            isLHS >>  objRHS._type[r][c];
+        }
+    }
+    return isLHS;
+}
+
+template <typename T>
+string GenericStorage2D<T>::toString()
+{
+    stringstream ssArray;
+    for (int r=0; r< _rows; r++)
+    {
+        for(int c=0; c<_cols; c++)
+        {
+            ssArray << _type[r][c] << ' ';
+        }
+        cout << endl;
+    }
+    return ssArray.str();
+}
+
+template <typename T>
+void GenericStorage2D<T>::AllocMem(int intRows, int intCols, T tDefault)
+{
+    _rows = intRows;
+    _cols = intCols;
+    _type = new T*[_rows];
+
+    for (int r=0; r< _rows; r++)
+    {
+        _type[r] = new T[_cols];
+        for(int c=0; c< _cols; c++)
+        {
+            _type[r][c] = tDefault;
+        }
+    }
+}
+
+template <typename T>
+void GenericStorage2D<T>::DeallocMem()
+{
+    for(int r=0; r< _rows; r++)
+    {
+        delete [] _type[r];
+    }
+    delete _type;
+}
+
+template <typename T>
+void GenericStorage2D<T>::Copy(const GenericStorage2D<T>& objOriginal)
+{
+    for (int r=0; r< _rows; r++)
+    {
+        for(int c=0; c< _cols; c++)
+        {
+            _type[r][c] = objOriginal._type[r][c];
+        }
+    }
+
+}
+
+template <typename T>
+GenericStorage2D<T>::~GenericStorage2D()
+{
+    DeallocMem();
+}
+
+template <typename T>
+int GenericStorage2D<T>::getRows() const
+{
+    return _rows;
+}
+
+template <typename T>
+int GenericStorage2D<T>::getCols() const
+{
+    return _cols;
+}
+
+template <typename T>
+void GenericStorage2D<T>::enforceRange(int intValue, int intMin, int intMax) const
+{
+    if(intValue < intMin || intValue > intMax)
+    {
+        cerr<< "Please enter number between " << intMin << " and " << intMax << endl;
+        exit(-3);
+    }
+}
+
+template <typename T>
+T GenericStorage2D<T>::getElement(int intRow, int intCol) const
+{
+    enforceRange(intRow,0, _rows-1);
+    enforceRange(intCol, 0, _cols-1);
+    return _type[intRow][intCol];
+}
+
+template <typename T>
+void GenericStorage2D<T>::setElement(int intRow, int intCol, T tValue)
+{
+    enforceRange(intRow, 0, _rows-1);
+    enforceRange(intCol, 0, _cols-1);
+    _type[intRow][intCol] = tValue;
+}

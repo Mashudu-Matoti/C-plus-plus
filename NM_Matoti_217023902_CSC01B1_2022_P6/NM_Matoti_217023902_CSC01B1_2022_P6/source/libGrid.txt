@@ -1,0 +1,184 @@
+#include <sstream>
+
+using namespace std;
+
+template <typename T>
+Matrix2D<T>::Matrix2D() : Matrix2D(DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_TYPE)
+{
+    AllocMem(DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_TYPE);
+}
+
+template <typename T>
+Matrix2D<T>::Matrix2D(int intRows, int intCols, T tDefault)
+{
+    AllocMem(intRows, intCols, tDefault);
+}
+
+template <typename T>
+Matrix2D<T>::Matrix2D(const Matrix2D<T>& objOriginal)
+{
+    AllocMem(objOriginal._rows, objOriginal._cols, objOriginal.DEFAULT_TYPE);
+    Copy(objOriginal);
+}
+
+//Assignment operator
+template <typename T>
+const Matrix2D<T>& Matrix2D<T>:: operator = (const Matrix2D<T>& objRHS)
+{
+    if(this != &objRHS)
+    {
+        Copy(objRHS);
+    }
+    return *this;
+}
+
+//Function invocation
+template <typename T>
+T& Matrix2D<T>::operator ()( int intRow, int intCol)
+{
+    enforceRange(intRow, 0, _rows);
+    enforceRange(intCol, 0, _cols);
+    return this->_type[intRow][intCol];
+}
+
+//Pre-increment
+template<typename T1>
+Matrix2D<T1>& operator ++ ( Matrix2D<T1>& objRHS)
+{
+     for (int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c< objRHS._cols; c++)
+        {
+            objRHS._type[r][c]++;
+        }
+    }
+    return objRHS;
+}
+
+//Output stream
+template <typename T1>
+ostream& operator << (ostream& osLHS, const Matrix2D<T1>& objRHS)
+{
+    for(int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c < objRHS._cols; c++)
+        {
+            osLHS << objRHS._type[r][c] << ' ';
+        }
+        osLHS << endl;
+    }
+    return osLHS;
+}
+
+//Input stream
+template <typename T1>
+istream& operator >> (istream& isLHS, Matrix2D<T1>& objRHS)
+{
+    for(int r=0; r< objRHS._rows; r++)
+    {
+        for(int c=0; c < objRHS._cols; c++)
+        {
+            isLHS >>  objRHS._type[r][c];
+        }
+    }
+    return isLHS;
+}
+
+template <typename T>
+string Matrix2D<T>::toString()
+{
+    stringstream ssArray;
+    for (int r=0; r< _rows; r++)
+    {
+        for(int c=0; c<_cols; c++)
+        {
+            ssArray << _type[r][c] << ' ';
+        }
+        cout << endl;
+    }
+    return ssArray.str();
+}
+
+template <typename T>
+void Matrix2D<T>::AllocMem(int intRows, int intCols, T tDefault)
+{
+    _rows = intRows;
+    _cols = intCols;
+    _type = new T*[_rows];
+
+    for (int r=0; r< _rows; r++)
+    {
+        _type[r] = new T[_cols];
+        for(int c=0; c< _cols; c++)
+        {
+            _type[r][c] = tDefault;
+        }
+    }
+}
+
+template <typename T>
+void Matrix2D<T>::DeallocMem()
+{
+    for(int r=0; r< _rows; r++)
+    {
+        delete [] _type[r];
+    }
+    delete _type;
+}
+
+template <typename T>
+void Matrix2D<T>::Copy(const Matrix2D<T>& objOriginal)
+{
+    for (int r=0; r< _rows; r++)
+    {
+        for(int c=0; c< _cols; c++)
+        {
+            _type[r][c] = objOriginal._type[r][c];
+        }
+    }
+
+}
+
+template <typename T>
+Matrix2D<T>::~Matrix2D()
+{
+    DeallocMem();
+}
+
+template <typename T>
+int Matrix2D<T>::getRows() const
+{
+    return _rows;
+}
+
+template <typename T>
+int Matrix2D<T>::getCols() const
+{
+    return _cols;
+}
+
+template <typename T>
+void Matrix2D<T>::enforceRange(int intValue, int intMin, int intMax) const
+{
+    if(intValue < intMin || intValue > intMax)
+    {
+        cerr<< "Please enter number between " << intMin << " and " << intMax << endl;
+        exit(-3);
+    }
+}
+
+template <typename T>
+T Matrix2D<T>::getElement(int intRow, int intCol) const
+{
+    enforceRange(intRow,0, _rows-1);
+    enforceRange(intCol, 0, _cols-1);
+    return _type[intRow][intCol];
+}
+
+template <typename T>
+void Matrix2D<T>::setElement(int intRow, int intCol, T tValue)
+{
+    enforceRange(intRow, 0, _rows-1);
+    enforceRange(intCol, 0, _cols-1);
+    _type[intRow][intCol] = tValue;
+}
